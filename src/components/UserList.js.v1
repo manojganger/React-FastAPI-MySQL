@@ -1,0 +1,46 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+function UserList() {
+  const [users, setUsers] = useState([]);
+
+  async function fetchUsers() {
+    const response = await axios.get('http://localhost:8000/api/users');
+    setUsers(response.data);
+  }
+
+  useEffect(() => {
+    // Fetch initial data
+    fetchUsers();
+
+    // Set up polling interval (e.g., every 5 seconds)
+    const pollingInterval = setInterval(fetchUsers, 5000);
+
+    // Clean up interval when component unmounts
+    return () => clearInterval(pollingInterval);
+  }, []);
+
+  return (
+    <div>
+      <h2>User List</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map(user => (
+            <tr key={user.id}>
+              <td>{user.id}</td>
+              <td>{user.name}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export default UserList;

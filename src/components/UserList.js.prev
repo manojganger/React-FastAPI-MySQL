@@ -1,0 +1,40 @@
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
+
+function UserList() {
+  const users = useSelector(state => state.users);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    async function fetchUsers() {
+      const response = await axios.get('http://localhost:8000/api/users');
+      dispatch({ type: 'SET_USERS', payload: response.data });
+    }
+    fetchUsers();
+  }, [dispatch]);
+
+  return (
+    <div>
+      <h2>User List</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map(user => (
+            <tr key={user.id}>
+              <td>{user.id}</td>
+              <td>{user.name}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export default UserList;
