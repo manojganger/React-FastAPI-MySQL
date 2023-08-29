@@ -23,7 +23,7 @@ app.add_middleware(
 )
 
 # Database setup
-DATABASE_URL = "mysql://root:rambha123@localhost/mysql"
+DATABASE_URL = "mysql://root:-----@localhost/mysql"
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
