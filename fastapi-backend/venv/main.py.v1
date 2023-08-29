@@ -1,0 +1,53 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from pydantic import BaseModel
+
+app = FastAPI()
+
+# Set up CORS
+origins = ["http://localhost:8000"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Database setup
+DATABASE_URL = "mysql://root:rambha123@localhost/mysql"
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+
+class UserCreate(BaseModel):
+    name: str
+
+@app.post("/api/users/")
+def create_user(user: UserCreate):
+    db = SessionLocal()
+    db_user = User(**user.dict())
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    db.close()
+    return db_user
+
+@app.get("/api/users/")
+def read_users(skip: int = 0, limit: int = 10):
+    db = SessionLocal()
+    users = db.query(User).offset(skip).limit(limit).all()
+    db.close()
+    return users
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
